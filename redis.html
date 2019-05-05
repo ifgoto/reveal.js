@@ -5,7 +5,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<title>reveal.js</title>
-
 		<link rel="stylesheet" href="css/reset.css">
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/black.css">
@@ -25,7 +24,74 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-                <section intro>
+                <section><h6>严格意义来说, redis并不是单线程的</h6> </section>
+                <section><h6>演示事务</h6> </section>
+                <section><h6>演示lua</h6> </section>
+                <section><h2>dict是什么鬼</h2><p style="font-size:20px;">这个结构散落在整个redis代码各处, 所以名字中有"dic"并不为过</p>
+                    <p style="font-size:16px;">dict 是 Redis 服务器中出现最为频繁的复合型数据结构，除了 hash 结构的数据会用到字典外，整个 Redis 数据库的所有 key 和 value 也组成了一个全局字典，还有带过期时间的 key 集合也是一个字典。zset 集合中存储 value 和 score 值的映射关系也是通过 dict 结构实现的。</p>
+                </section>
+				<section>
+					<h2>Redis名字由来</h2>
+					<p style="font-size:12px;" align="left">
+						Redis 是互联网技术领域使用最为广泛的存储中间件，它是「<b>Re</b>mote <b>Di</b>ctionary <b>S</b>ervice」的首字母缩写，也就是「远程字典服务」。
+                        Re Di S
+					</p>
+				</section>
+				<section>
+					<h2>Redis 作者 Antirez 其人趣事</h2>
+					<img src="res/Antirez.png">
+					<p style="font-size:16px;" align="left">
+					Redis 由意大利人 Salvatore Sanfilippo（网名 Antirez） 开发，上图是他的个人照片。<br>
+					<a href="res/Antirez.mp3">Antirez</a>(<a href="https://www.howtopronounce.com/antirez/">不会发音,在网上随便找了个发音</a>)
+                    <br>他出生在非英语系国家，英语能力长期以来是一个短板，他曾经专门为自己蹩脚的英语能力写过一篇博文《英语伤痛 15 年》，用自己的成长经历来鼓励那些非英语系的技术开发者们努力攻克英语难关。
+					</p>
+				</section>
+				<section>
+					<h2>为什么 Redis 的默认端口是 6379</h2>
+						<pre><code class="hljs" data-trim >
+    static const short port = 6379;
+					</code></pre>
+					<img src="res/redis_port_keyboard.png">
+					<p style="font-size:16px;" align="left">
+						我们都知道 Redis 的默认端口是 6379，这个端口号也不是随机选的，而是由手机键盘字母「MERZ」的位置决定的。「MERZ」在 Antirez 的朋友圈语言中是「愚蠢」的代名词，它源于意大利广告女郎「Alessia Merz」在电视节目上说了一堆愚蠢的话，想到这里我不禁开始感觉到 Antirez 的朋友圈似乎有那么点猥琐。
+					</p>
+				</section>
+                <section>
+					<h2>Redis 应用场景</h2>
+                        <li style="font-size:20px;" align="left">缓存（数据查询、短连接、新闻内容、商品内容等等)。（最多使用）</li>
+                        <li style="font-size:20px;" align="left">聊天室的在线好友列表。</li>
+                        <li style="font-size:20px;" align="left">任务队列。（秒杀、抢购、12306等等）</li>
+                        <li style="font-size:20px;" align="left">应用排行榜。</li>
+                        <li style="font-size:20px;" align="left">网站访问统计。</li>
+                        <li style="font-size:20px;" align="left">数据过期处理（可以精确到毫秒）</li>
+                        <li style="font-size:20px;" align="left">分布式集群架构中的session分离。</li>
+				</section>
+
+				<section>
+					<h2>Redis 由来</h2>
+					<p style="font-size:16px;" align="left">
+						 2008年，意大利的一家创业公司Merzia推出了一款基于MySQL的网站实时统计系统<a href="https://github.com/antirez/lloogg"> LLOOGG.</a><br>
+						然而没过多久该公司的创始人 Salvatore Sanfilippo(antirez) 便对MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个 数据库.<br>
+						并于 2009 年开发完成，这个数据库就是Redis.<br>
+						不过Salvatore Sanfilippo并不满足只将 Redis 用于LLOOGG这一款产品，而是希望更多的人使用它，<br>
+						于是在同一年 Salvatore Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 Pieter Noordhuis 一起继续着 Redis 的开发，直到今天.</small>
+					</p>
+				</section>
+				<section>
+					<h2>Redis事务及lua脚本</h2>
+					<h5>--闲话Redis</h5>
+					<p>
+                        <br>
+						<br>
+						<br>
+						<br>
+                        <div align="right">
+							<small>朱庆航</small>
+						</div>
+					</p>
+				</section>
+
+                <section >
                     <section data-markdown>
 						<script type="text/template">
                         # redis 扫盲
