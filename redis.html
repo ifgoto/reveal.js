@@ -24,7 +24,57 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-                <section><h6>严格意义来说, redis并不是单线程的</h6> </section>
+                <section id="redis并不是单线程的">
+					<section>
+						<section> <img src="res/memcached_vs_redis.png"> </section>
+					</section>
+                    <section>
+						<h6>严格意义来说, redis并不是单线程的</h6>
+					</section>
+                    <section> <img src="res/redis_bio_struct.png"> </section>
+					<section> <a href="https://www.cnblogs.com/learn-my-life/p/5662607.html">redis BIO详解</a>
+						<img src="res/redis_bio_invoke.png">
+					</section>
+					<section> <p>当然也可以运行redis后, 用ps -T -p 命令去验证一下</p>
+						<pre><code class="hljs" data-trim >
+                                k@t530:~/code/c/redis-3.0.7/src$ ps -ef|grep redis
+                                k         9340  9330  0 00:12 pts/6    00:00:00 vim redis.conf
+                                k         9485  9321  0 00:15 pts/5    00:00:00 redis-server *:6379
+                                k         9499  9489  0 00:15 pts/7    00:00:00 grep --color=auto redis
+                                k@t530:~/code/c/redis-3.0.7/src$ ps -T -p 9485
+                                  PID  SPID TTY          TIME CMD
+                                 9485  9485 pts/5    00:00:00 redis-server
+                                 9485  9486 pts/5    00:00:00 redis-server
+                                 9485  9487 pts/5    00:00:00 redis-server
+						</code></pre>
+					</section>
+					<section>当然也有人吐槽由于redis单进程的特性, 让运维人员需要在一个机器中布多个实例才解决,有点.....</section>
+					<section>但是,在现在云化的环境中, 其实很多应用的趋势是把应用做得越来越简单,(我不太懂微服务, 是不是也有点关系),</section>
+					<section><a href="https://zh.moegirl.org/%E4%B8%96%E7%95%8C%E4%B8%8A%E6%B2%A1%E6%9C%89%E4%BB%80%E4%B9%88%E4%BA%8B%E6%98%AF%E4%B8%80%E9%A1%BF%E7%83%A7%E7%83%A4%E4%B8%8D%E8%83%BD%E8%A7%A3%E5%86%B3%E7%9A%84%EF%BC%8C%E5%A6%82%E6%9E%9C%E6%9C%89%EF%BC%8C%E9%82%A3%E5%B0%B1%E4%B8%A4%E9%A1%BF">
+					 世界上没有什么事是一顿烧烤不能解决的，如果有，那就两顿 </a></section>
+					<section>同理.拉起一个redis容器如果搞不定, 那么就两个</section>
+					<section>
+						<h7>scale up or scale out</h7>
+                            <br>
+						<h9>去IOE?</h9>
+						<p style="font-size:16px;">横向扩展(水平扩展) 用更多的节点支撑更大量的请求 如成千上万的蚂蚁完成一项搬运工作<br>
+                           纵向扩展(垂直扩展) 扩展一个点的能力支撑更大的请求如利用1个人的能力，如蜘蛛侠逼停火车</p>
+					</section>
+                </section>
+                <section id="read the src of redis">
+					<section><h6>下载适当的版本</h6><p>1.0? 3.0.3? 3.2.8? 4.0?</p> </section>
+					<section><h6>平时我们去了解一个工程的方法</h6>
+						<li style="font-size:20px;" align="left">ideploy??</li>
+						<li style="font-size:20px;" align="left">varglind</li>
+						<li style="font-size:20px;" align="left">log</li>
+						<li style="font-size:20px;" align="left">debug</li>
+					</section>
+					<section>对于log,需要改配置文件 把log弄出来</section>
+					<section>对于debug, 需要改编译,把-O2的优化给去掉(涉及到早年vs 留下的debug, release), 不然debug时会有点不知所云</section>
+					<section>演示gdb(cui模式其实也是可以的)</section>
+					<section>演示clion</section>
+					<section>安利mobaxterm, 特别是xmanger 被和谐了之后</section>
+				</section>
                 <section><h6>演示事务</h6> </section>
                 <section><h6>演示lua</h6> </section>
                 <section><h2>dict是什么鬼</h2><p style="font-size:20px;">这个结构散落在整个redis代码各处, 所以名字中有"dic"并不为过</p>
@@ -141,6 +191,7 @@
 					{ src: 'plugin/markdown/marked.js' },
 					{ src: 'plugin/markdown/markdown.js' },
 					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
 					{ src: 'plugin/highlight/highlight.js', async: true }
 				]
 			});
