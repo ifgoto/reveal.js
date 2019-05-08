@@ -24,7 +24,128 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-                <section id="redis并不是单线程的">
+
+
+
+				<section data-markdown>
+					<script type="text/template">
+						<h6>cover</h6>
+						<h6>name come from?</h6>
+						<h6>gossip</h6>
+                        <h6>only single thread??</h6>
+                        <h6>way to read the src</h6>
+                        <h6>transaction</h6>
+						<h6>pipeline</h6>
+                        <h6>lua script</h6>
+                        <h6>reference</h6>
+                        <h6>question</h6>
+					</script>
+				</section>
+
+				<section id="02 name come from">
+					<section >
+                        <h2>Redis名字由来</h2>
+					</section>
+					<section >
+                        <p style="font-size:18px;" align="left">
+                            Redis 是互联网技术领域使用最为广泛的存储中间件，它是「<b>Re</b>mote <b>Di</b>ctionary <b>S</b>ervice」的首字母缩写，<br>
+
+						</br>也就是「远程字典服务」。
+                        </p>
+					</section>
+                    <section>
+						Re Di S
+					</section>
+					<section>
+						说到起名字, 这个科学也好.玄学也罢的事情,我其实一直很无语,到后为就无感了.<br>
+                    </section>
+                    <section>
+						觉得最土,就是把先把中文想好,再弄出个英文, 但又出于某些原因,如词不达义等,再把这些英文来个首字母缩写,如CBE-_-!!..<br>
+						当然,如果缩写用多了,也就约定俗成了, 如果老外也用..那就变国际惯例了...如CRM.<br>
+					</section>
+					<section>
+						再好点的, 还是缩写, 但缩得有点讲究,如GNU <br>
+						<img src="res/gnu_logo.png"><br>
+						GNU is a recursive acronym for "GNU's Not Unix!",<br>
+						chosen because GNU's design is Unix-like, <br>
+						but differs from Unix by being free software and containing no Unix code.<br>
+						--from <a href="https://en.wikipedia.org/wiki/GNU">wiki/GNU</a>
+					</section>
+
+
+                    <section>
+						再好点的就是一些有点意义的单词,,如zookeeper, tomcat,这些比较容易记住的...<br>
+						当然, 有时这个也是不得已而为之, 如zookeeper当初在yahoo取这个名字之前, 已经有一大堆阿猫阿狗的项目,为了结束这种乱象,<br>
+						当时就想着有一个项目来管理一下, 就....
+					</section>
+					<section>
+						说老外有爱心, 喜欢小动物?<br>
+						还是取阿猫阿狗之类的名字就是人的本性?	<br>
+						这个不太清楚, 但是作为一个好装X的程序员,怎能没有读过一两oreilly的动物书<br>
+                        当然, 据说oreilly出动物书是为了保护动物...
+					</section>
+					<section>
+						<img src="res/oreilly_animals.jpg">
+					</section>
+                    <section>
+                        <p>
+                            当然,也有起名前就自我感觉良好的, 为自己的oreillybook选好封面的,<br>
+                            如tomcat,</p>
+                        <img src="res/tomcat_logo.png">
+                        <br>
+                        <img src="res/tomcat_orielly.png">
+                    </section>
+
+					<section><h2>dict是什么鬼</h2><p style="font-size:20px;">这个结构散落在整个redis代码各处, 所以名字中有"dic"并不为过</p>
+						<p style="font-size:16px;">dict 是 Redis 服务器中出现最为频繁的复合型数据结构，除了 hash 结构的数据会用到字典外，整个 Redis 数据库的所有 key 和 value 也组成了一个全局字典，还有带过期时间的 key 集合也是一个字典。zset 集合中存储 value 和 score 值的映射关系也是通过 dict 结构实现的。</p>
+                        TODO post the code later...
+					</section>
+
+					<section>
+						<h2>Redis 由来</h2>
+						<p style="font-size:16px;" align="left">
+							2008年，意大利的一家创业公司Merzia推出了一款基于MySQL的网站实时统计系统<a href="https://github.com/antirez/lloogg"> LLOOGG.</a><br>
+							然而没过多久该公司的创始人 Salvatore Sanfilippo(antirez) 便对MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个 数据库.<br>
+							并于 2009 年开发完成，这个数据库就是Redis.<br>
+							不过Salvatore Sanfilippo并不满足只将 Redis 用于LLOOGG这一款产品，而是希望更多的人使用它，<br>
+							于是在同一年 Salvatore Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 Pieter Noordhuis 一起继续着 Redis 的开发，直到今天.</small>
+						</p>
+					</section>
+				</section>
+
+				<section id="03 gossip">
+					<section>
+						<h2>Redis 作者 Antirez 其人趣事</h2>
+						<img src="res/Antirez.png">
+						<p style="font-size:16px;" align="left">
+							Redis 由意大利人 Salvatore Sanfilippo（网名 Antirez） 开发，上图是他的个人照片。<br>
+							<a href="res/Antirez.mp3">Antirez</a>(<a href="https://www.howtopronounce.com/antirez/">不会发音,在网上随便找了个发音</a>)
+							<br>他出生在非英语系国家，英语能力长期以来是一个短板，他曾经专门为自己蹩脚的英语能力写过一篇博文《英语伤痛 15 年》，用自己的成长经历来鼓励那些非英语系的技术开发者们努力攻克英语难关。
+						</p>
+					</section>
+					<section>
+						<h2>为什么 Redis 的默认端口是 6379</h2>
+						<pre><code class="hljs" data-trim >
+                        static const short port = 6379;
+                        </code></pre>
+						<img src="res/redis_port_keyboard.png">
+						<p style="font-size:16px;" align="left">
+							我们都知道 Redis 的默认端口是 6379，这个端口号也不是随机选的，而是由手机键盘字母「MERZ」的位置决定的。「MERZ」在 Antirez 的朋友圈语言中是「愚蠢」的代名词，它源于意大利广告女郎「Alessia Merz」在电视节目上说了一堆愚蠢的话，想到这里我不禁开始感觉到 Antirez 的朋友圈似乎有那么点猥琐。
+						</p>
+					</section>
+					<section>
+						<h2>Redis 应用场景</h2>
+						<li style="font-size:20px;" align="left">缓存（数据查询、短连接、新闻内容、商品内容等等)。（最多使用）</li>
+						<li style="font-size:20px;" align="left">聊天室的在线好友列表。</li>
+						<li style="font-size:20px;" align="left">任务队列。（秒杀、抢购、12306等等）</li>
+						<li style="font-size:20px;" align="left">应用排行榜。</li>
+						<li style="font-size:20px;" align="left">网站访问统计。</li>
+						<li style="font-size:20px;" align="left">数据过期处理（可以精确到毫秒）</li>
+						<li style="font-size:20px;" align="left">分布式集群架构中的session分离。</li>
+					</section>
+				</section>
+
+                <section id="04single thread?">
 					<section>
 						<section> <img src="res/memcached_vs_redis.png"> </section>
 					</section>
@@ -61,11 +182,51 @@
                            纵向扩展(垂直扩展) 扩展一个点的能力支撑更大的请求如利用1个人的能力，如蜘蛛侠逼停火车</p>
 					</section>
                 </section>
-                <section id="read the src of redis">
+
+                <section id="way to read the src">
+					<section>
+						平时我们去了解一个陌生的东西, 往往是从入门开始,因此就往往有这种书
+					</section>
+					<section>
+						<img src="res/redis_zero_base.png">
+					</section>
+					<section>
+						随着在入门与未入门的临门一脚之际, 发现原来有人还把redis这货当数据库<br>
+						于是还真到数据库相关排行(<a href="https://db-engines.com/en/ranking">https://db-engines.com/en/ranking</a>)<br>
+						中查了一下, 发现还真有.<br>
+					</section>
+					<section>
+						<img src="res/db_engine_ranking.png">
+					</section>
+					<section>
+						于是就改用一般数据库的入门书...
+					</section>
+					<section>
+						<img src="res/redis_zero_rm_db.png">
+					</section>
+					<section>
+						当从入门,到放弃, 再到跑路, 再到无路可跑时,<br> 基本已有一定的基础,可以相对深入地学习<br>
+						对于 <b>好装B, 求甚解</b> 的我们,<br>
+					</section>
+					<section>
+						对这些开源的,<br>
+						并且主要由个人开发的,<br>
+
+						代码量相对不太大<br>
+						<pre><font color="#8AE234"><b>k@t530</b></font>:<font color="#729FCF"><b>~/code/c/redis-3.0.7/src</b></font>$ find . -name &quot;*.[ch]&quot;|xargs wc -l $1|tail -n1
+  56766 total
+</pre>
+						且注释相对良好的项目, <br>
+						我们一般采用啃源码的方式去学习<br>
+					</section>
+					<section>
+						<img src="res/redis_src_analyse.png">
+					</section>
+
 					<section><h6>下载适当的版本</h6><p>1.0? 3.0.3? 3.2.8? 4.0?</p> </section>
 					<section><h6>平时我们去了解一个工程的方法</h6>
 						<li style="font-size:20px;" align="left">ideploy??</li>
-						<li style="font-size:20px;" align="left">varglind</li>
+						<li style="font-size:20px;" align="left">valgrind</li>
 						<li style="font-size:20px;" align="left">log</li>
 						<li style="font-size:20px;" align="left">debug</li>
 					</section>
@@ -77,56 +238,7 @@
 				</section>
                 <section><h6>演示事务</h6> </section>
                 <section><h6>演示lua</h6> </section>
-                <section><h2>dict是什么鬼</h2><p style="font-size:20px;">这个结构散落在整个redis代码各处, 所以名字中有"dic"并不为过</p>
-                    <p style="font-size:16px;">dict 是 Redis 服务器中出现最为频繁的复合型数据结构，除了 hash 结构的数据会用到字典外，整个 Redis 数据库的所有 key 和 value 也组成了一个全局字典，还有带过期时间的 key 集合也是一个字典。zset 集合中存储 value 和 score 值的映射关系也是通过 dict 结构实现的。</p>
-                </section>
-				<section>
-					<h2>Redis名字由来</h2>
-					<p style="font-size:12px;" align="left">
-						Redis 是互联网技术领域使用最为广泛的存储中间件，它是「<b>Re</b>mote <b>Di</b>ctionary <b>S</b>ervice」的首字母缩写，也就是「远程字典服务」。
-                        Re Di S
-					</p>
-				</section>
-				<section>
-					<h2>Redis 作者 Antirez 其人趣事</h2>
-					<img src="res/Antirez.png">
-					<p style="font-size:16px;" align="left">
-					Redis 由意大利人 Salvatore Sanfilippo（网名 Antirez） 开发，上图是他的个人照片。<br>
-					<a href="res/Antirez.mp3">Antirez</a>(<a href="https://www.howtopronounce.com/antirez/">不会发音,在网上随便找了个发音</a>)
-                    <br>他出生在非英语系国家，英语能力长期以来是一个短板，他曾经专门为自己蹩脚的英语能力写过一篇博文《英语伤痛 15 年》，用自己的成长经历来鼓励那些非英语系的技术开发者们努力攻克英语难关。
-					</p>
-				</section>
-				<section>
-					<h2>为什么 Redis 的默认端口是 6379</h2>
-						<pre><code class="hljs" data-trim >
-    static const short port = 6379;
-					</code></pre>
-					<img src="res/redis_port_keyboard.png">
-					<p style="font-size:16px;" align="left">
-						我们都知道 Redis 的默认端口是 6379，这个端口号也不是随机选的，而是由手机键盘字母「MERZ」的位置决定的。「MERZ」在 Antirez 的朋友圈语言中是「愚蠢」的代名词，它源于意大利广告女郎「Alessia Merz」在电视节目上说了一堆愚蠢的话，想到这里我不禁开始感觉到 Antirez 的朋友圈似乎有那么点猥琐。
-					</p>
-				</section>
-                <section>
-					<h2>Redis 应用场景</h2>
-                        <li style="font-size:20px;" align="left">缓存（数据查询、短连接、新闻内容、商品内容等等)。（最多使用）</li>
-                        <li style="font-size:20px;" align="left">聊天室的在线好友列表。</li>
-                        <li style="font-size:20px;" align="left">任务队列。（秒杀、抢购、12306等等）</li>
-                        <li style="font-size:20px;" align="left">应用排行榜。</li>
-                        <li style="font-size:20px;" align="left">网站访问统计。</li>
-                        <li style="font-size:20px;" align="left">数据过期处理（可以精确到毫秒）</li>
-                        <li style="font-size:20px;" align="left">分布式集群架构中的session分离。</li>
-				</section>
 
-				<section>
-					<h2>Redis 由来</h2>
-					<p style="font-size:16px;" align="left">
-						 2008年，意大利的一家创业公司Merzia推出了一款基于MySQL的网站实时统计系统<a href="https://github.com/antirez/lloogg"> LLOOGG.</a><br>
-						然而没过多久该公司的创始人 Salvatore Sanfilippo(antirez) 便对MySQL 的性能感到失望，于是他决定亲自为 LLOOGG 量身定做一个 数据库.<br>
-						并于 2009 年开发完成，这个数据库就是Redis.<br>
-						不过Salvatore Sanfilippo并不满足只将 Redis 用于LLOOGG这一款产品，而是希望更多的人使用它，<br>
-						于是在同一年 Salvatore Sanfilippo 将 Redis 开源发布，并开始和 Redis 的另一名主要的代码贡献者 Pieter Noordhuis 一起继续着 Redis 的开发，直到今天.</small>
-					</p>
-				</section>
 				<section>
 					<h2>Redis事务及lua脚本</h2>
 					<h5>--闲话Redis</h5>
