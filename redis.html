@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html xmlns="http://www.w3.org/1999/html">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -25,21 +25,159 @@
 		<div class="reveal">
 			<div class="slides">
 
-
-				<section> 好了, 下面是种草时间</section>
-				<section>古语云:工欲善其事，必先利其器
-					<p>工欲善其事，必先利其器是说:工匠想要使他的工作做好，一定要先让工具锋利。比喻要做好一件事，准备工作非常重要。语出《论语·卫灵公》：子贡问为仁。子曰：“工欲善其事，必先利其器。居是邦也，事其大夫之贤者，友其士之仁者。”
-						<br></br>--from百度百科</p>
-				</section>
-			   <section>终端复用器</section>
-				<section>screen,当然也有 tmux之类,及更多后起之秀,但screen比较多统都会自带,而且我只是一个小白用户,只用最基础的一部分功能</section>
-				<section>show time(screen)</section>
 				<section>
-					mobaxterm
-					由于xmanager之类的软件已不能在我们环境中使用了, 因此找个免费的x转换器是很有必要的.
+					<img src="res/redis_trans_intro_01.png">
 				</section>
-                <section>一路next傻瓜式安装,之后,打开</section>
+				<section>
+					<p>一个事务从开始到执行会经历以下三个阶段：</p>
+					<ol class="arabic simple">
+						<li>开始事务。</li>
+						<li>命令入队。</li>
+						<li>执行事务。</li>
+					</ol>
+					<p>下文将分别介绍事务的这三个阶段。</p>
+				</section>
+				<section>
+					<img src="res/redis_trans_begin_02.png">
+				</section>
+				<section>
+					multi.c:86
+					<pre><code class="hljs" data-trim >
+void multiCommand(redisClient *c) {
+    if (c->flags & REDIS_MULTI) {
+        addReplyError(c,"MULTI calls can not be nested");
+        return;multiCommand
+    }
+    c->flags |= REDIS_MULTI;
+    addReply(c,shared.ok);
+}
+					</code></pre>
+                    <p style="font-size:20px">从上面的源码可以看出，MULTI只能执行一次，而且就做一件事，把客户端的标志打上REDIS_MULTI.<br>
+					</br>EXEC也是这样</p>
+				</section>
+				<section>
+					<img src="res/redis_trans_enque_03.png">
+				</section>
+				<section>
+					<img src="res/redis_trans_enque_flow_04.png">
+				</section>
+                <section>
+                    每个客户端都有一个标识位云标识是否进入事务模式
+						<pre><code class="hljs" data-trim >
+//redis.h:527
+/* With multiplexing we need to take per-client state.
+* Clients are taken in a linked list. */
+typedef struct redisClient {
+    uint64_t id;            /* Client incremental unique ID. */
+    int fd;
+    redisDb *db;
+    ...
+    multiState mstate;      /* MULTI/EXEC state */
+    ...
+}
+                        </code></pre>
+				</section>
+                <section>
+                    multi.c:55
+				<pre><code class="hljs" data-trim>
 
+/* Add a new command into the MULTI commands queue */
+void queueMultiCommand(redisClient *c) {
+    multiCmd *mc;
+    int j;
+
+    c->mstate.commands = zrealloc(c->mstate.commands,
+            sizeof(multiCmd)*(c->mstate.count+1));
+    mc = c->mstate.commands+c->mstate.count;
+    mc->cmd = c->cmd;
+    mc->argc = c->argc;
+    mc->argv = zmalloc(sizeof(robj*)*c->argc);
+    memcpy(mc->argv,c->argv,sizeof(robj*)*c->argc);
+    for (j = 0; j < c->argc; j++)
+        incrRefCount(mc->argv[j]);
+    c->mstate.count++;
+}
+				</code></pre>
+				</section>
+				<section>
+                    redis:2312
+				<pre><code class="hljs" data-trim>
+    /* Exec the command */
+    if (c->flags & REDIS_MULTI &&
+        c->cmd->proc != execCommand && c->cmd->proc != discardCommand &&
+        c->cmd->proc != multiCommand && c->cmd->proc != watchCommand)
+    {
+        queueMultiCommand(c);
+        addReply(c,shared.queued);
+                    ...
+				</code></pre>
+				</section>
+				<section>
+					每一个事务的结构大体如下
+					<img src="res/redis_trans_multiState_05.png">
+				</section>
+				<section>
+					<img src="res/redis_trans_multiState_inner_06.png">
+				</section>
+				<section>执行事务,就是按上面这个图的方法来顺序执行,
+				</section>
+
+				<section>
+					当然上面举的例子都是正常的例子,但实际开发中哪有这么一帐风顺...<br>
+					来点异常的吧...
+				</section>
+                <section>
+                    <img src="res/redis_trans_two_kinds_err.jpg">
+				</section>
+				<section>有些语法错误在入队前就能检测出来, 所以在入队前就会报错. 这个还说得过去<br>
+                    	但有些非语法错误,而是用错数据类型但确有不同的结果...
+                </section>
+				<section>
+					<img src="res/redis_trans_watch_01.png">
+				</section>
+				<section>
+					乐观锁
+				</section>
+				<section>
+					<img src="res/redis_trans_watch_implem.png">
+				</section>
+				<section>
+					<img src="res/redis_trans_watch_trigger.png">
+				</section>
+
+				<section>
+					在传统的关系数据库中, 常常用ACID性质来检验事务的要可靠性与安全性.
+				</section>
+                <section><img src="res/redis_trans_atomic_01.png"></section>
+				<section><img src="res/redis_trans_atomic_no_rollback.png"></section>
+
+				<section>
+					<h3>redis事务不支持回滚</h3>
+
+					<p style="font-size:20px">
+                    如果你有使用关系式数据库的经验， 那么 “Redis 在事务失败时不进行回滚，而是继续执行余下的命令”这种做法可能会让你觉得有点奇怪。<br>
+                    以下是这种做法的优点：<br>
+					1. Redis 命令只会因为错误的语法而失败（并且这些问题不能在入队时发现），或是命令用在了错误类型的键上面：<br>
+					</br>这也就是说，从实用性的角度来说，失败的命令是由编程错误造成的，<br>
+					</br>而这些错误应该在开发的过程中被发现，而不应该出现在生产环境中。<br>
+					2. 因为不需要对回滚进行支持，所以 Redis 的内部可以保持简单且快速。 <br>有种观点认为 Redis 处理事务的做法会产生 bug ，<br>
+						然而需要注意的是， 在通常情况下， 回滚并不能解决编程错误带来的问题。 <br>
+					举个例子， 如果你本来想通过 INCR 命令将键的值加上 1 ， 却不小心加上了 2 ， 又或者对错误类型的键执行了 INCR ， <br>
+						回滚是没有办法处理这些情况的。<br>
+					鉴于没有任何机制能避免程序员自己造成的错误， 并且这类错误通常不会在生产环境中出现， <br>
+						所以 Redis 选择了更简单、更快速的无回滚方式来处理事务。 <br>
+						详见:<a href="https://redis.io/topics/transactions">Why Redis does not support roll backs?</a>
+
+				</section>
+                <section>所以从定义的角度来说, 要么都执行, 要么都不执行,这货是有原子性的,,但是让从关系数据库中切来的我有点不适</section>
+				<section>剩下的一致性讨论我看不懂, 就不说了</section>
+				<section><img src="res/redis_trans_ID.png"></section>
+				<section>隔离的话,对于非集群模式的成立的, 如果是集群,理论上也把把各个key打散, 保证到单个key的访问都会被某一个服务器处理,<br>
+				</br>但如主从实现读写分离呢?==,这个好像是一致性的问题了</section>
+                <section>对于耐久性的分析, 我觉得就算打开,AOF,配上always刷盘, 那样也要考虑IO是不是赶得上内存key的变化速度, 所以我觉得连书中那个特性也不成立, <br>
+				当然, redis开那个开关,性能就....所以一般不这样用吧.所以就这个符合耐久性的分析只是理论上的</section>
+				<section><img src="res/redis_trans_summary_01.png">
+				<img src="res/redis_trans_summary_02.png"></section>
 				<section data-markdown>
 					<script type="text/template">
 						<h6>cover</h6>
@@ -148,6 +286,7 @@
 					</section>
 					<section>
 						<h2>Redis 应用场景</h2>
+                        cache? buffer?? db???
 						<li style="font-size:20px;" align="left">缓存（数据查询、短连接、新闻内容、商品内容等等)。（最多使用）</li>
 						<li style="font-size:20px;" align="left">聊天室的在线好友列表。</li>
 						<li style="font-size:20px;" align="left">任务队列。（秒杀、抢购、12306等等）</li>
@@ -215,6 +354,9 @@
 						于是就改用一般数据库的入门书...
 					</section>
 					<section>
+						<img src="res/redis_dummy.png">
+					</section>
+					<section>
 						<img src="res/redis_zero_rm_db.png">
 					</section>
 					<section>
@@ -243,13 +385,48 @@
 						<li style="font-size:20px;" align="left">log</li>
 						<li style="font-size:20px;" align="left">debug</li>
 					</section>
+
 					<section>对于log,需要改配置文件 把log弄出来</section>
+					<section>好吧, 有了上面这些东西,我们基本可以, 啃代码了</section>
+
+					<section> 好了, 下面是种草时间</section>
+					<section>古语云:工欲善其事，必先利其器
+						<p>工欲善其事，必先利其器是说:工匠想要使他的工作做好，一定要先让工具锋利。比喻要做好一件事，准备工作非常重要。语出《论语·卫灵公》：子贡问为仁。子曰：“工欲善其事，必先利其器。居是邦也，事其大夫之贤者，友其士之仁者。”
+							<br></br>--from百度百科</p>
+					</section>
+					<section>终端复用器</section>
+					<section>screen,当然也有 tmux之类,及更多后起之秀,但screen比较多统都会自带,而且我只是一个小白用户,只用最基础的一部分功能</section>
+					<section>show time(screen)</section>
+					<section>
+						mobaxterm
+						由于xmanager之类的软件已不能在我们环境中使用了, 因此找个免费的x转换器是很有必要的.
+						<img src="res/mobaxterm.png">
+					</section>
+					<section>一路next傻瓜式安装,之后,打开,像平时用ssh登陆到后台那样,之后就 xclock能看到一个图型界面的时钟那么应算装好了</section>
+					<section>具体这是干啥的?在这里先不说,买个关子...不然..一会就没有彩蛋了....(或者说,兵法云,善填坑者必先挖坑</section>
+					<section>当然, gcc, gdb这些东西还是需要的<p>如果大家足够敏感的话会发现,我上一张胶片的括号没有关闭</p></section>
+
+					<section>show time(compile debug show the jump line)</section>
 					<section>对于debug, 需要改编译,把-O2的优化给去掉(涉及到早年vs 留下的debug, release), 不然debug时会有点不知所云</section>
+					<section>修改src/Makefile:50 gf跳过去后可以把两个地方的-O2改为-O0, 再次编译,之后再次调试可以避免部分这种现象</section>
+
+
 					<section>演示gdb(cui模式其实也是可以的)</section>
 					<section>演示clion</section>
 					<section>安利mobaxterm, 特别是xmanger 被和谐了之后</section>
 				</section>
-                <section><h6>演示事务</h6> </section>
+                <section id="transaction">
+					<section >
+						Redis 通过 MULTI 、 DISCARD 、 EXEC 和 WATCH 四个命令来实现事务功能， <br>
+						本章首先讨论使用 MULTI 、 DISCARD 和 EXEC 三个命令实现的一般事务， 然后再来讨论带有 WATCH 的事务的实现。<br>
+                        因为事务的安全性也非常重要， 所以本章最后通过常见的 ACID 性质对 Redis 事务的安全性进行了说明。<br>
+					</section>
+					<section>参考:<br>
+						<a href="https://www.cnblogs.com/chenpingzhao/p/5001894.html">关于Redis的ACID</a><br>
+						<a href="http://redisbook.readthedocs.org/en/latest/feature/transaction.html">Redis设计与实现.ch19 事务</a>
+					</section>
+				</section>
+
                 <section><h6>演示lua</h6> </section>
 
 				<section>
