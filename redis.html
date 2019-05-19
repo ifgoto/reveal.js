@@ -24,7 +24,22 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
+				<section id="lua">
+					<section>
+						如果说WATCH等一系列命令最晚的一个到redis2.2才弄出来,那么lua脚本这个相对晚得多<br>
+                        当然, 迟到也是有迟到的理由的
+					</section>
+                    <section>
+                        通过内嵌对lua环境的支持,解决了长久以来, 不能高效地处理CAS(check and set)命令的缺点.并且通过组合使用多个命令,<br>
+                        相对轻松实现了以前很难实现或者不能高效实现的一些场景.
+                    </section>
+                    <section> 例如之前那个watch中的变量被修改的情况, 在lua脚本中是不会出现的, 因为从根本上保证了各个redis命令执行的顺序</section>
+                    <section>这个情况哪怕是在集群中也是这样的(因为就算是集群,那么固定的key也是会分到既定的服务器中,
+                        <br>不会出现一个key同时被两个服务器处理
+                    </section>
 
+
+				</section>
 				<section>
 					<img src="res/redis_trans_intro_01.png">
 				</section>
@@ -178,6 +193,7 @@ void queueMultiCommand(redisClient *c) {
 				当然, redis开那个开关,性能就....所以一般不这样用吧.所以就这个符合耐久性的分析只是理论上的</section>
 				<section><img src="res/redis_trans_summary_01.png">
 				<img src="res/redis_trans_summary_02.png"></section>
+
 				<section data-markdown>
 					<script type="text/template">
 						<h6>cover</h6>
