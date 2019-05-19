@@ -25,6 +25,7 @@
 		<div class="reveal">
 			<div class="slides">
 				<section id="lua">
+
 					<section>
 						如果说WATCH等一系列命令最晚的一个到redis2.2才弄出来,那么lua脚本这个相对晚得多<br>
                         当然, 迟到也是有迟到的理由的
@@ -37,6 +38,63 @@
                     <section>这个情况哪怕是在集群中也是这样的(因为就算是集群,那么固定的key也是会分到既定的服务器中,
                         <br>不会出现一个key同时被两个服务器处理
                     </section>
+					<section><img src="res/create_and_modify_lua_env.png"></section>
+					<section><img src="res/sub_create_lua_env.png"></section>
+					<section><img src="res/lua_open_call_graph.png"></section>
+					<section><img src="res/load_lib_01.png"></section>
+					<section><img src="res/load_lib_02.png"></section>
+					<section><img src="res/load_lib_code.png"></section>
+					<section><img src="res/create_global_table.png"></section>
+					<section><img src="res/create_global_table_code.png"></section>
+					<section><img src="res/replace_function.png"></section>
+					<section><img src="res/replace_function_code.png"></section>
+					<section><img src="res/compare_sort_01.png"></section>
+					<section><img src="res/compare_sort_02.png"></section>
+					<section><img src="res/compare_sort_code.png"></section>
+					<section><img src="res/pcall_error_report.png"></section>
+					<section><img src="res/pcall_error_report_code.png"></section>
+					<section><img src="res/protect_globa_variable.png"></section>
+					<section><img src="res/protect_global_varialbe_code.png"></section>
+					<section><img src="res/save_to_server_state.png"></section>
+					<section><img src="res/save_to_server_state_code.png"></section>
+					<section><img src="res/fake_client.png"></section>
+					<section><img src="res/fake_client_graph.png"></section>
+					<section><img src="res/lua_scripts_dict.png"></section>
+					<section><img src="res/lua_scripts_dict_code.png"></section>
+
+					<section>EVAL 命令的实现<br>
+						<ol class="arabic simple">
+							<li>定义脚本函数</li>
+							<li>将脚本保存到lua_scripts字典</li>
+							<li>执行脚本函数</li>
+						</ol>
+						<p style="font-size:20px">
+							<br></br>整体逻辑在scripting.c:927的evalGenericCommand函数中
+						</p>
+					</section>
+					<section>
+						而evalsha这个只是在原来eval命令调用前,<br>
+						对传入的sha摘要长度进行了较验,<br>
+						之后就直接调用了eval了
+						<img src="res/evalsha.png">
+					</section>
+					<section><img src="res/script_cmd.png"></section>
+					<section><img src="res/script_cmd_code.png"></section>
+					<section><img src="res/script_kill.png"></section>
+					<section>脚本复制<br>
+						<p style="font-size:20px">
+                        与其它redis命令一样,当服务器运行在复制模式的时候, 具有写性质的脚本命令也会被复制到服务器中,其中有
+
+						<ol class="arabic simple">
+							<li>EVAL</li>
+							<li>EVALSHA</li>
+							<li>SCRIPT FLUSH</li>
+							<li>SCRIPT LOAD</li>
+						</ol>
+                        </p>
+                        但是涉及到主从复制还没有看,所以就先跳过了...
+					</section>
+
 
 
 				</section>
